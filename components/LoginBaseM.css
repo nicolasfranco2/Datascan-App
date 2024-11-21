@@ -1,0 +1,165 @@
+.loginbasemChild {
+    position: absolute;
+    top: 23px;
+    left: 213.94px;
+    border-radius: 50%;
+    background: radial-gradient(50% 50% at 50% 50%, #fff 65.5%, #0879ea);
+    width: 600px;
+    height: 600px;
+    transform: rotate(46deg);
+    transform-origin: 0 0;
+}
+
+.loginbase1 {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0%;
+    right: 0%;
+    bottom: 0%;
+    left: 0%;
+    border-radius: 36px;
+    background-color: #f2f2f2;
+}
+
+.logoLogin1Icon {
+    position: absolute;
+    height: 51.22%;
+    width: 59.68%;
+    top: -3.79%;
+    right: 18.01%;
+    bottom: 52.56%;
+    left: 22.31%;
+    max-width: 100%;
+    overflow: hidden;
+    max-height: 100%;
+    object-fit: cover;
+}
+
+.loginbaseChild {
+    position: absolute;
+    height: 43.34%;
+    width: 89.84%;
+    top: 49.88%;
+    right: 5.08%;
+    bottom: 6.78%;
+    left: 5.08%;
+    border-radius: 12px;
+    background-color: #d9d9d9;
+}
+
+.loginbaseItem {
+    position: absolute;
+    height: 10.4%;
+    width: 73.44%;
+    top: 54.96%;
+    right: 13.28%;
+    bottom: 34.64%;
+    left: 13.28%;
+    background-color: var(--color-white);
+}
+
+.iconPerson {
+    width: 14px;
+    position: relative;
+    height: 14px;
+}
+
+.usuario {
+    flex: 1;
+    position: relative;
+    display: inline-block;
+    height: 16px;
+    opacity: 0.5;
+}
+
+.iconPersonParent {
+    position: absolute;
+    height: 8.71%;
+    width: 73.44%;
+    top: 55.69%;
+    right: 13.28%;
+    bottom: 35.6%;
+    left: 13.28%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: var(--padding-3xs);
+    box-sizing: border-box;
+    gap: var(--gap-3xs);
+}
+
+.loginbaseInner {
+    position: absolute;
+    height: 10.4%;
+    width: 73.44%;
+    top: 67.55%;
+    right: 13.28%;
+    bottom: 22.04%;
+    left: 13.28%;
+    background-color: var(--color-white);
+}
+
+.iconLockLocked {
+    width: 12px;
+    position: relative;
+    height: 14px;
+    opacity: 0.5;
+}
+
+.iconLockLockedParent {
+    position: absolute;
+    height: 8.71%;
+    width: 73.44%;
+    top: 68.28%;
+    right: 13.28%;
+    bottom: 23.01%;
+    left: 13.28%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: var(--padding-3xs);
+    box-sizing: border-box;
+    gap: var(--gap-3xs);
+}
+
+.ingresar {
+    position: absolute;
+    top: 10px;
+    left: 89px;
+}
+
+.ingresarWrapper {
+    position: absolute;
+    top: 367px;
+    left: 65px;
+    border-radius: 13px;
+    background-color: #51b351;
+    width: 240px;
+    height: 39px;
+    text-align: center;
+    font-size: 16px;
+    color: var(--color-white);
+}
+
+.loginbase {
+    position: absolute;
+    top: 200px;
+    left: 20px;
+    width: 372px;
+    height: 449px;
+}
+
+.loginbasem {
+    width: 100%;
+    position: relative;
+    background: linear-gradient(#087aeb, #087aeb), linear-gradient(180deg, #0879ea 30.4%);
+    height: 917px;
+    overflow: hidden;
+    text-align: left;
+    font-size: var(--font-size-3xs);
+    color: var(--color-black);
+    font-family: var(--font-inter);
+}
