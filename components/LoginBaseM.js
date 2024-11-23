@@ -11,7 +11,7 @@ const LoginBaseM = ({ navigation }) => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('http://192.168.8.14:2025/login', {
+      const response = await fetch('http://192.168.11.161:2025/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user: usuario, password: contraseña }),

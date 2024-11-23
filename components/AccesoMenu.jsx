@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { View, Image, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker'; // Asegúrate de instalar esta librería
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native'; // Importa useNavigation para navegación
 
 const AccesoMenu = () => {
   const [formularios, setFormularios] = useState([]);
   const [selectedValue, setSelectedValue] = useState('');
   const [username, setUsername] = useState('');
+  const navigation = useNavigation(); // Hook para navegar
 
 
   useEffect(() => {
@@ -19,7 +21,7 @@ const AccesoMenu = () => {
 
         if (token) {
           const response = await fetch(
-            `http://192.168.8.14:2025/formularios?token=${token}`
+            `http://192.168.11.161:2025/formularios?token=${token}`
           );
           const data = await response.json();
 
@@ -48,9 +50,22 @@ const AccesoMenu = () => {
   }, []); // Se ejecuta solo una vez al montar el componente
 
   const handleButtonPress = (action) => {
-    console.log(`Botón presionado: ${action}`);
-    // Aquí puedes agregar la lógica para lo que deben hacer los botones
+    if (selectedValue !== '') {
+      const formularioSeleccionado = formularios.find(
+        (formulario) => formulario.id === selectedValue
+      );
+  
+      if (formularioSeleccionado) {
+        navigation.navigate('ConsultaForm', {
+          idFormulario: selectedValue,
+          nombre: formularioSeleccionado.nombre,
+          formularios: formularios,
+          action: action,  // Pasamos la acción aquí
+        });
+      }
+    }
   };
+      
   const handleIconPress = () => {
     console.log("Icono presionado");
     // Aquí puedes agregar lo que debe suceder cuando el ícono es tocado
@@ -81,7 +96,7 @@ const AccesoMenu = () => {
         <View style={styles.buttonsContainer}>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => handleButtonPress('Consultar')}
+            onPress={ handleButtonPress}
           >
             <Text style={styles.buttonText}>Consultar</Text>
           </TouchableOpacity>
