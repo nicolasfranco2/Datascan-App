@@ -51,7 +51,7 @@ const LoginBaseM = ({ navigation }) => {
           value={usuario}
           onChangeText={setUsuario}
           style={styles.input}
-        />
+        />  
       </View>
       <View style={styles.inputContainer}>
         <Image source={require('../assets/icon-lock-locked.png')} style={styles.icon} />

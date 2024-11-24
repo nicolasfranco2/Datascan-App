@@ -1,31 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import { View, Image, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Picker } from '@react-native-picker/picker'; // Asegúrate de instalar esta librería
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native'; // Importa useNavigation para navegación
+//Importación de Dependencias:
 
+import React, { useState, useEffect } from 'react';// se utiliza para manejar estados en la visual
+
+import { View, Image, Text, StyleSheet, TouchableOpacity } from 'react-native';//componentes para crear la interfaz  
+
+import { Picker } from '@react-native-picker/picker'; // Componentes del combo box
+
+import AsyncStorage from '@react-native-async-storage/async-storage'; //componentes para almacenar datos, como token datos que se quiere utilizar
+
+import { useNavigation } from '@react-navigation/native'; // componentes para navegar
+
+// inicializamos la interfaz del usuario
 const AccesoMenu = () => {
-  const [formularios, setFormularios] = useState([]);
-  const [selectedValue, setSelectedValue] = useState('');
-  const [username, setUsername] = useState('');
-  const navigation = useNavigation(); // Hook para navegar
+  const [formularios, setFormularios] = useState([]);//guarda  los datos de los formularios en un array
 
+  const [selectedValue, setSelectedValue] = useState('');// guarda el valor seleccionado 
 
+  const [username, setUsername] = useState(''); //guardamos el valor seleccionado en un picker 
+
+  const navigation = useNavigation(); // aplicamos la navegacion
+
+  // efectos para cargar los datos al momento de inicializar la interfaz
   useEffect(() => {
+
+    //definimos la funcion para montar lo necesario
     const fetchFormularios = async () => {
+
       try {
-        // Recuperamos el token de AsyncStorage
+        // Recuperamos el token de AsyncStorage cuando nos logueamos
         const token = await AsyncStorage.getItem('authToken');
+
+        //recuperamos el username del usuario y lo seteamos en vez de root
         const storedUsername = await AsyncStorage.getItem('username');
         setUsername(storedUsername || 'Root');
 
+        //realizamos la peticion con el token adquirido para obtener nuestros formularios
         if (token) {
           const response = await fetch(
             `http://192.168.11.161:2025/formularios?token=${token}`
           );
+          //La respuesta se convierte a formato JSON mediante response.json().
           const data = await response.json();
 
+          //si tenemos resultado solo capturamos el id y el nombre del formulario
           if (data.formularios) {
+
             // Filtramos los formularios para que tengan solo id y nombre
             const formulariosFiltrados = data.formularios.map(formulario => ({
               id: formulario.id,
@@ -34,42 +53,52 @@ const AccesoMenu = () => {
             
             // Actualizamos el estado con los formularios filtrados
             setFormularios(formulariosFiltrados);
+
           } else {
             Alert.alert('Error', 'No se encontraron formularios');
           }
         } else {
           Alert.alert('Error', 'Token no disponible. Inicie sesión nuevamente.');
         }
+
       } catch (error) {
         console.error('Error al cargar los formularios:', error);
         Alert.alert('Error', 'Hubo un problema al cargar los formularios.');
       }
     };
-
+//cerramos el useffet
     fetchFormularios();
   }, []); // Se ejecuta solo una vez al montar el componente
 
+//ejecuta el boton de consulta
   const handleButtonPress = (action) => {
+
+    //verifica si el formulario no esta vacio
     if (selectedValue !== '') {
+
+      //buscamos el formulario con el id seleccionado
       const formularioSeleccionado = formularios.find(
         (formulario) => formulario.id === selectedValue
       );
   
+      //si se encontro el formulario se navega al from de Consultaform
       if (formularioSeleccionado) {
         navigation.navigate('ConsultaForm', {
-          idFormulario: selectedValue,
-          nombre: formularioSeleccionado.nombre,
-          formularios: formularios,
+          idFormulario: selectedValue, //id del formulario seleccionado
+          nombre: formularioSeleccionado.nombre, // el nombre del formulario
+          formularios: formularios, // el formulario completo
           action: action,  // Pasamos la acción aquí
+          selectedValue: selectedValue, // Pasamos el valor seleccionado del Picker
+
         });
+      } else {
+        Alert.alert('Error', 'Formulario seleccionado no válido');
       }
+    } else {
+      Alert.alert('Advertencia', 'Selecciona un formulario antes de continuar');
     }
   };
-      
-  const handleIconPress = () => {
-    console.log("Icono presionado");
-    // Aquí puedes agregar lo que debe suceder cuando el ícono es tocado
-  };
+  
 
   return (
     <View style={styles.container}>
@@ -115,10 +144,6 @@ const AccesoMenu = () => {
       <Text style={styles.root}>{username || 'Root'}</Text>
       <View style={styles.accesomenuInner} />
       <Image style={styles.logo1Icon} source={require('../assets/logo 1.png')} />
-       {/* Icono interactivo */}
-       <TouchableOpacity onPress={handleIconPress}>
-        <Image style={styles.vectorIcon} source={require('../assets/Vector.svg')} />
-      </TouchableOpacity>
 	{	/*
       <Image style={styles.vectorIcon1} source={require('../assets/Vector.svg')}/>
       <Text style={styles.iconSearch}>🦆 icon "search"</Text> 

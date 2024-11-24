@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 
 const ResultadosScreen = ({ route }) => {
-  const { resultados } = route.params; // Recibimos los resultados desde AccesoMenu
-  const [selectedFormulario, setSelectedFormulario] = useState(null); // Para rastrear el formulario seleccionado
+  const { resultados } = route.params;
+  console.log(resultados); // Agrega esta línea para verificar los datos
+  const [selectedFormulario, setSelectedFormulario] = useState(null);
 
   const handleSelectFormulario = (formulario) => {
-    setSelectedFormulario(formulario === selectedFormulario ? null : formulario); // Alternar selección
+    setSelectedFormulario((prevFormulario) =>
+      prevFormulario === formulario ? null : formulario
+    );
   };
 
   return (
@@ -18,7 +21,7 @@ const ResultadosScreen = ({ route }) => {
       ) : (
         <FlatList
           data={resultados}
-          keyExtractor={(item, index) => index.toString()} // Usamos el índice como key
+          keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => handleSelectFormulario(item.formulario)}
@@ -27,12 +30,10 @@ const ResultadosScreen = ({ route }) => {
                 selectedFormulario === item.formulario && styles.resultItemSelected,
               ]}
             >
-              {/* Mostrar el formulario */}
               <Text style={styles.formularioText}>{item.formulario}</Text>
 
               {selectedFormulario === item.formulario && (
                 <View style={styles.detailsContainer}>
-                  {/* Detalles del formulario */}
                   <Text style={styles.detailText}>Nombre Archivo: {item.nombreArchivo}</Text>
                   <Text style={styles.detailText}>Páginas: {item.paginasCantidad}</Text>
                   <Text style={styles.detailText}>Indexado por: {item.indexadoPor}</Text>
@@ -40,7 +41,6 @@ const ResultadosScreen = ({ route }) => {
                     Fecha de indexado: {item.fechaIndexado}
                   </Text>
 
-                  {/* Mostrar los valores de los atributos */}
                   <Text style={styles.attributesTitle}>Atributos:</Text>
                   {item.atributos && item.atributos.length > 0 ? (
                     item.atributos.map((atributo, index) => (
@@ -54,7 +54,6 @@ const ResultadosScreen = ({ route }) => {
                     <Text style={styles.noAttributes}>No hay atributos disponibles.</Text>
                   )}
 
-                  {/* Mostrar estado firmado y firmantes */}
                   <Text style={styles.detailText}>
                     Firmado: {item.firmado ? 'Sí' : 'No'}
                   </Text>
