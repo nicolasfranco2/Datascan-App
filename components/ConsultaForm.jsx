@@ -189,20 +189,20 @@
     
 
     return (
-      <ScrollView  style={styles.container}>
-        <Text style={styles.label}>Selecciona un formulario:</Text>
-        <Picker selectedValue={selectedValue} onValueChange={handleValueChange} style={styles.picker}>
-          <Picker.Item label="--Ninguno--" value="" />
-          {formularios.map((formulario) => (
-            <Picker.Item key={formulario.id} label={formulario.nombre} value={formulario.id} />
-          ))}
-        </Picker>
+  <View style={{ flex: 1 }}>
+  <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}>
+    <Text style={styles.label}>Selecciona un formulario:</Text>
+    <Picker selectedValue={selectedValue} onValueChange={handleValueChange} style={styles.picker}>
+      <Picker.Item label="--Ninguno--" value="" />
+      {formularios.map((formulario) => (
+        <Picker.Item key={formulario.id} label={formulario.nombre} value={formulario.id} />
+      ))}
+    </Picker>
 
-        {formularioAttributes ? (
-    <View style={styles.attributesContainer}>
-      <Text style={styles.attributesTitle}>Atributos del formulario:</Text>
-      {formularioAttributes.atributos && formularioAttributes.atributos.length > 0 ? (
-        formularioAttributes.atributos.map((atributo) => (
+    {formularioAttributes && (
+      <View style={styles.attributesContainer}>
+        <Text style={styles.attributesTitle}>Atributos del formulario:</Text>
+        {formularioAttributes.atributos.map((atributo) => (
           <View key={atributo.id} style={styles.attributeContainer}>
             <Text style={styles.attribute}>{atributo.nombre}</Text>
             <Picker
@@ -226,51 +226,46 @@
               />
             )}
           </View>
-        ))
-      ) : (
-        <Text>No se encontraron atributos</Text>
-      )}
-    </View>
-  ) : (
-    <Text style={styles.loadingText}>Cargando atributos...</Text>
-  )}
-  <Button title="Consultar" onPress={handleButtonPress} />
+        ))}
+      </View>
+    )}
+  </ScrollView>
+  <View style={styles.buttonContainer}>
+    <Button title="Consultar" onPress={handleButtonPress} />
+  </View>
+</View>
 
-  {/* Mostrar los resultados si están disponibles */}
-  {loading ? (
-    <Text style={styles.loadingText}>Cargando resultados...</Text>
-  ) : (
-    <FlatList
-      data={resultados}
-      keyExtractor={(item) => item.idDocumento}
-      renderItem={({ item }) => (
-        <View style={styles.resultItem}>
-          <Text style={styles.resultText}>Nombre: {item.nombreArchivo}</Text>
-          <Text style={styles.resultText}>Páginas: {item.paginasArchivo}</Text>
-          <Text style={styles.resultText}>Indexado por: {item.archivoIndexadoPorUsuario}</Text>
-          <Text style={styles.resultText}>Fecha indexado: {item.archivoIndexadoEnFecha}</Text>
-        </View>
-      )}
-    />
-  )}
-  </ScrollView >
-  );
-  };
-
+)};
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      padding: 20,
-    },
-    label: {
-      fontSize: 18,
+     },
+     label: {
+      fontSize: 20,
       marginBottom: 10,
+      alignSelf: 'center', // Alinea al principio del contenedor
+      marginLeft: 20, // Crea un espacio desde el borde izquierdo
+      marginTop: 22,
+      fontWeight: 'bold', // Hace que el texto sea negrita
+      
     },
     picker: {
-      marginBottom: 20,
+      marginBottom: 20, // Espaciado inferior
+      width: '80%',
+      alignSelf: 'center', // Hace que el Picker ocupe el ancho completo del contenedor
+      height: 50, // Ajusta la altura del Picker
+      borderWidth: 1, // Agrega un borde para que sea más visible
+      borderColor: 'gray', // Color del borde
+      borderRadius: 5, // Bordes redondeados
+      backgroundColor: '#f9f9f9', // Fondo claro para un mejor contraste
+      fontSize: 16, // Tamaño de la fuente
+      color: 'black', // Color del texto dentro del Picker
+      paddingHorizontal: 10, // Espaciado interno
     },
+    
     attributesContainer: {
-      marginVertical: 20,
+      marginVertical: 10,
+      paddingLeft: 20,
     },
     attributesTitle: {
       fontSize: 18,
@@ -282,22 +277,41 @@
       marginBottom: 5,
     },
     attributeContainer: {
-      marginBottom: 20,
+      marginBottom: 10,
     },
     loadingText: {
       fontSize: 16,
       color: 'gray',
     },
+   
     input: {
       height: 40,
-      borderColor: 'gray',
-      borderWidth: 1,
-      marginTop: 10,
+      width: '80%',
+      borderColor: '#007acc', // Azul más oscuro para destacar
+      borderWidth: 2, // Borde más grueso para indicar interactividad
+      alignSelf: 'center',
+      borderRadius: 5,
+      backgroundColor: '#ffffff', // Blanco puro para enfatizar la entrada de texto
+      fontSize: 14,
+      color: '#333333',
       paddingHorizontal: 10,
     },
-    buttonsContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
+    
+   
+    /* input: {
+      height: 40, // Ajusta la altura
+      width: '80%', // Ajusta el ancho, puede ser porcentaje o valor absoluto
+      borderColor: 'gray',
+      borderWidth: 1,
+      //marginTop: 10,
+      //paddingHorizontal: 15, // Espacio interno en los lados
+      alignSelf: 'center', // Centra horizontalmente el input dentro del contenedor
+      //borderRadius: 5, // Opcional: agrega esquinas redondeadas
+    },
+    */
+    buttonContainer: {
+      padding: 10,
+      backgroundColor: '#f5f5f5',
     },
     button: {
       padding: 10,

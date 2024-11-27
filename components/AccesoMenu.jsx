@@ -67,13 +67,14 @@ const AccesoMenu = () => {
   };
       
   const handleIconPress = () => {
-    console.log("Icono presionado");
+    console.log("Icono presionado");  
     // Aquí puedes agregar lo que debe suceder cuando el ícono es tocado
   };
 
   return (
     <View style={styles.container}>
     {/* Picker */}
+    <Image style={styles.container} source={require('../assets/fondo.png')} />
     <View style={styles.pickerContainer}>
       <Text style={styles.label}>Selecciona un formulario:</Text>
       <Picker
@@ -110,145 +111,159 @@ const AccesoMenu = () => {
       )}
 
     <View style={styles.accesomenu}>
-      <View style={styles.accesomenuChild} />
-      <Image style={styles.accesomenuItem} source={require('../assets/Ellipse 2.png')} />
-      <Text style={styles.root}>{username || 'Root'}</Text>
-      <View style={styles.accesomenuInner} />
-      <Image style={styles.logo1Icon} source={require('../assets/logo 1.png')} />
-       {/* Icono interactivo */}
-       <TouchableOpacity onPress={handleIconPress}>
-        <Image style={styles.vectorIcon} source={require('../assets/Vector.svg')} />
-      </TouchableOpacity>
-	{	/*
-      <Image style={styles.vectorIcon1} source={require('../assets/Vector.svg')}/>
-      <Text style={styles.iconSearch}>🦆 icon "search"</Text> 
-      <Image style={styles.agregarArchivo1Icon} source={require('../assets/agregar-archivo 1.png')} />*/}
-      <Image style={styles.emergencyExitIcon} source={require('../assets/Emergency Exit.svg')} />
-	  
-    
-        
+      <View style={styles.containerStyle}>
+       <Image style={styles.logo1Icon} source={require('../assets/logo 1.png')} />
+         <View style={styles.userGroup}>
+          <Text style={styles.root}>{username || 'Root'}</Text>
+          <Image style={styles.accesomenuItem} source={require('../assets/User.png')} />
+        </View>
       </View>
+      <Image style={styles.emergencyExitIcon} source={require('../assets/Emergency Exit.svg')} />
+	  </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: 'center', // Centra todo en el contenedor
-      alignItems: 'center',
-      backgroundColor: '#f5f5f5',
-      padding: 20, // Agrega un poco de espaciado en los bordes
-    },
-    pickerContainer: {
-      width: '100%', // Asegura que el Picker ocupe todo el ancho disponible
-      marginBottom: 20, // Agrega espacio debajo del Picker
-      alignItems: 'center', // Centra el Picker y su texto dentro de su contenedor
-      backgroundColor: '#f5f5f5', // Reemplaza 'var(--color-gainsboro)' con color específico
-
-    },
-    label: {
-      fontSize: 16,
-      marginBottom: 8,
-    },
-    picker: {
-      height: 50,
-      width: '80%', // Hace el Picker un poco más pequeño
-      borderColor: '#ccc',
-      borderWidth: 1,
-      marginBottom: 10, // Agrega un poco de espacio entre el Picker y el texto
-    },
-    text: {
-      fontSize: 16,
-    },
-   accesomenu: {
-      position: 'absolute', // Fija los íconos en la parte superior
-      top: 0, // Ubica los íconos en la parte superior de la pantalla
-      width: '100%', // Asegura que ocupe todo el ancho
-      flexDirection: 'row', // Alinea los íconos en fila
-      justifyContent: 'center', // Centra los íconos horizontalmente
-      alignItems: 'center', // Centra los íconos verticalmente en su contenedor
-      marginTop: 30, // Deja un espacio adicional si es necesario
-    },
-    accesomenuChild: {
-      width: 600,
-      height: 100,
-      backgroundColor: 'gainsboro', // Reemplaza 'var(--color-gainsboro)' con color específico
-      borderRadius: 15,
-      position: 'absolute',
-      top: 20,
-      left: 34,
-      marginTop: -50, // Ajustar para centrar en el medio
-      marginLeft: -206,
-    },
-   accesomenuItem: {
-      width: 42,
-      height: 40,
-      position: 'absolute',
-      top: 18,
-      left: 355,
-     },
-     root: {
-      fontSize: 18, // Tamaño de la fuente
-      fontWeight: 'bold', // Texto en negrita
-      color: '#2D7AFC', // Azul claro
-      textAlign: 'center', // Centrar el texto
-      marginTop: 10, // Espaciado superior
-      zIndex: 10, // Asegura que el texto esté sobre otros elementos
-    },
+  // Contenedor principal que organiza todo el contenido de la pantalla
+  container: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    position: 'absolute', // La imagen se posiciona detrás de cualquier contenido
+    resizeMode: 'cover',  // Asegura que la imagen cubra todo el espacio proporcionalmente
+    flex: 1, // Asegura que el contenedor ocupe toda la pantalla
+    justifyContent: 'flex-start', // Empuja los elementos hacia arriba para evitar que se desborden
+    alignItems: 'center', // Centra los elementos horizontalmente
+    padding: 0, // Espaciado en los bordes
+  },
+  
+  // Estilo para el contenedor del Picker
+  pickerContainer: {
+    width: '100%', // Asegura que el Picker ocupe todo el ancho disponible
+    marginBottom: 20,  // Espacio reducido para que los botones no se alejen demasiado del Picker
+    alignItems: 'center', // Centra el Picker horizontalmente
+    //backgroundColor: '#f5f5f5',  // Fondo gris claro
+   // borderWidth: 1,  // Añade borde alrededor del Picker
+   // borderColor: '#ccc',  // Color gris del borde
+    borderRadius: 8,  // Bordes redondeados
+    padding: 5,  // Espaciado dentro del contenedor del Picker
+     // Posiciona el contenedor con valores en píxeles
+     position: 'absolute',  // Asegura que se ubique en la posición deseada
+     top: 100, // Ajusta la posición hacia abajo desde el borde superior en 100px
+  },
+  
+  // Estilo del Picker
+  picker: {
+    height: 52, // Altura ajustada del Picker
+    width: '80%',  // Ancho ajustado a un 80% de la pantalla
+    backgroundColor: '#f5f5f5',  // Fondo blanco para mejor contraste
+    marginBottom: 10,  // Espacio debajo del Picker
+    borderWidth: 0,  // Añade borde alrededor del Picker
     
-    accesomenuInner: {
-      width: 412,
-      height: 74,
-      backgroundColor: 'gainsboro', // Reemplaza 'var(--color-gainsboro)' con color específico
-      borderRadius: 15,
-      position: 'absolute',
-      bottom: 0,
-    },
-    logo1Icon: {
-      width: 200,
-      height: 50,
-    },
-    vectorIcon: {
-      width: 50,
-      height: 50,
-    },
-    agregarArchivo1Icon: {
-      width: 50, // Ajustar según sea necesario
-      height: 50, // Ajustar según sea necesario
-      position: 'absolute',
-      bottom: 10,
-      left: 200,
-    },  
-    iconSearch: {
-      position: 'absolute',
-      top: 10,
-      right: 10,
-    },
-    emergencyExitIcon: {
-      width: 50, // Ajustar según sea necesario
-      height: 50, // Ajustar según sea necesario
-      position: 'absolute',
-      top: 10,
-      left: 10,
-    },
-    buttonsContainer: { 
-      marginTop: 20,
-      width: '80%',
-      alignItems: 'center',
+  },
+  
+  // Etiqueta del Picker
+  label: {
+    fontSize: 20,  // Tamaño de fuente de la etiqueta
+    marginBottom: 8,  // Espacio debajo de la etiqueta
+    //backgroundColor: '#f5f5f5',  // Fondo blanco para mejor contraste
+    borderColor: '#00000'
+  },
+  
+  // Contenedor de los botones
+  buttonsContainer: {
+    marginTop: 250, // Ajusta el margen superior según sea necesario
+    width: '80%',  // Puedes ajustar el ancho para que los botones no se estiren demasiado
+    flexDirection: 'row-reverse',  // Esto hace que los botones estén uno al lado del otro
+    justifyContent: 'space-between', // Asegura que haya espacio entre los botones
+    alignItems: 'center',  // Centra los botones verticalmente si es necesario
+  },
 
-     },
-     button: {
-      backgroundColor: '#007BFF',
-      paddingVertical: 10,
-      paddingHorizontal: 20,
-      borderRadius: 5,
-      marginBottom: 10,
-    },
-    buttonText: {
-      color: '#fff',
-      fontSize: 16,
-    },
-  });
+  // Estilo de cada botón
+  button: {
+    backgroundColor: '#007BFF', // Color de fondo azul para los botones
+    paddingVertical: 10, // Relleno vertical
+    paddingHorizontal: 20, // Relleno horizontal
+    borderRadius: 5,  // Bordes redondeados
+    marginBottom: 10, // Espacio debajo de cada botón
+  },
+
+  // Texto dentro de los botones
+  buttonText: {
+    color: '#fff',  // Color blanco para el texto
+    fontSize: 16,  // Tamaño de fuente del texto
+  },
+
+  // Contenedor del menú de acceso (imagen y nombre de usuario)
+  accesomenu: {
+    position: 'absolute',  // Posición absoluta para ubicarlo en la parte superior
+    top: 0, // Coloca el contenedor en la parte superior de la pantalla
+    width: '100%',  // Ocupa todo el ancho
+    flexDirection: 'row', // Coloca los elementos en fila (imagen y texto)
+    justifyContent: 'space-between', // Deja espacio entre el logo y el ícono del usuario
+    alignItems: 'center', // Centra los elementos verticalmente
+    paddingHorizontal: 20, // Espacio en los bordes del contenedor
+    marginTop: 30,  // Espacio desde la parte superior
+  },
+  
+  // Contenedor del logo y el usuario
+  containerStyle: {
+    flexDirection: 'row', // Coloca los elementos en fila
+    alignItems: 'center', // Centra los elementos verticalmente
+    justifyContent: 'space-between', // Separa el logo y el ícono de usuario
+    backgroundColor: 'gainsboro',  // Color de fondo gris claro
+    borderBottomLeftRadius: 8,  // Bordes redondeados en la parte inferior
+    borderBottomRightRadius: 8,  // Bordes redondeados en la parte inferior
+    paddingHorizontal: 20,  // Espaciado horizontal
+    paddingVertical: 5,  // Espaciado vertical
+    position: 'absolute',  // Posición absoluta para ubicarlo en la parte superior
+    top: -28.5, // Ajuste de la posición vertical
+    left: 0,  // Ajuste de la posición horizontal
+    right: 0, // Ajuste de la posición horizontal
+  },
+
+  // Contenedor del nombre de usuario y el ícono
+  userGroup: {
+    flexDirection: 'row', // Organiza el texto y el ícono en fila
+    alignItems: 'center', // Centra los elementos verticalmente
+  },
+
+  // Estilo del ícono de usuario
+  accesomenuItem: {
+    width: 40,  // Ancho del ícono
+    height: 40,  // Alto del ícono
+    resizeMode: 'contain',  // Ajusta el ícono para que se mantenga proporcional
+  },
+
+  // Estilo para el nombre de usuario
+  root: {
+    fontSize: 18,  // Tamaño de la fuente del nombre
+    fontWeight: 'bold',  // Texto en negrita
+    color: 'darkblue',  // Color del texto
+    marginRight: 5,  // Espacio entre el texto y el ícono
+  },
+
+  // Estilo del logo
+  logo1Icon: {
+    width: 150,  // Ancho del logo
+    height: 40,  // Alto del logo
+    resizeMode: 'contain',  // Mantiene las proporciones del logo
+    position: 'static',  // Posición estática
+    top: 10,  // Ajuste de la posición vertical
+    left: 15,  // Ajuste de la posición horizontal
+  },
+
+  // Estilo del ícono de salida de emergencia
+  emergencyExitIcon: {
+    width: 50,  // Ancho del ícono
+    height: 50,  // Alto del ícono
+    position: 'absolute',  // Posición absoluta
+    top: 10,  // Ajuste de la posición vertical
+    left: 10,  // Ajuste de la posición horizontal
+  },
+});
+
+
   
 export default AccesoMenu;
