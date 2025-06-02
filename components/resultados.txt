@@ -1,0 +1,196 @@
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native'; // Usamos para navegación
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Linking } from 'react-native';
+
+const ResultadosScreen = ({ route }) => {
+  const { resultados, token } = route.params;
+  const [selectedFormulario, setSelectedFormulario] = useState(null);
+
+  const handleSelectFormulario = (formulario) => {
+    if (selectedFormulario === formulario) {
+      const documentoId = formulario.idDocumento;
+      openDocument(documentoId);
+    } else {
+      setSelectedFormulario(formulario);
+    }
+  };
+
+  const openDocument = async (idDocumento) => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) {
+        return Alert.alert('Error', 'Token no disponible. Inicie sesión nuevamente.');
+      }
+
+      const url = `http://192.168.11.161:8080/datascan3-web/ws/download/${token}/${idDocumento}/file.pdf`;
+      console.log('URL para abrir en el navegador:', url);
+
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert('Error', 'No se puede abrir la URL en este dispositivo.');
+      }
+    } catch (error) {
+      console.error('Error al intentar abrir el documento:', error);
+      Alert.alert('Error', 'No se pudo abrir el documento.');
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Seleccione un formulario:</Text>
+
+      {resultados.length === 0 ? (
+        <Text style={styles.noResults}>No se encontraron resultados.</Text>
+      ) : (
+        <FlatList
+          data={resultados}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => handleSelectFormulario(item)}
+              style={[
+                styles.resultItem,
+                selectedFormulario === item && styles.resultItemSelected,
+              ]}
+            >
+              <Text style={styles.formularioText}>{item.formulario}</Text>
+
+              
+              {item.atributos && item.atributos.length > 0 ? (
+  <View style={styles.attributesContainer}>
+    <Text style={styles.attributesTitle}>Atributos</Text>
+     {item.atributos.map((atributo, index) => (
+      <View key={index} style={styles.attributeItem}>
+        <Text style={styles.attributeText}>
+          <Text style={styles.boldText}>{atributo.nombre}:</Text> {atributo.valor}
+        </Text>
+      </View>
+    ))}
+  </View>
+) : (
+  <Text style={styles.noAttributes}>No hay atributos disponibles.</Text>
+)}
+
+
+             {selectedFormulario === item && (
+  <View style={styles.detailsContainer}>
+    <Text style={styles.detailText}>
+      <Text style={styles.boldText}>Nombre Archivo:</Text> {item.nombreArchivo}
+    </Text>
+    <Text style={styles.detailText}>
+      <Text style={styles.boldText}>Páginas:</Text> {item.paginasCantidad}
+    </Text>
+    <Text style={styles.detailText}>
+      <Text style={styles.boldText}>Indexado por:</Text> {item.indexadoPor}
+    </Text>
+    <Text style={styles.detailText}>
+      <Text style={styles.boldText}>Id del documento:</Text> {item.idDocumento}
+    </Text>
+    <Text style={styles.detailText}>
+      <Text style={styles.boldText}>Fecha de indexado:</Text> {item.fechaIndexado}
+    </Text>
+  </View>
+)}
+
+                  {/*<Text style={styles.detailText}>
+                    Firmado: {item.firmado ? 'Sí' : 'No'}
+                  </Text>
+                  <Text style={styles.detailText}>
+                    Firmantes: {item.firmantes || 'No disponible'}
+                  </Text>
+                
+              */}
+            </TouchableOpacity>
+          )}
+        />
+      )}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#fff',
+  },
+  /*Nuevo*/
+  attributesContainer: {
+    padding: 10,
+    marginVertical: 8,
+    backgroundColor: '#f0f8ff', // Fondo de color suave
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#00aaff', // Borde de color para resaltar
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: '#333',
+  },
+  noResults: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: 'gray',
+  },
+  resultItem: {
+    padding: 12,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  resultItemSelected: {
+    backgroundColor: '#e6f7ff',
+    borderColor: '#00aaff',
+  },
+  formularioText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  detailsContainer: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
+  },
+  detailText: {
+    fontSize: 16,
+    color: '#555',
+    //fontWeight: 'bold',
+    marginVertical: 4,
+  },
+  attributesTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center', // Centra el texto
+    marginVertical: 8,
+    color: '#333',
+  },
+  attributeItem: {
+    marginLeft: 12,
+    
+    marginVertical: 4,
+  },
+  attributeText: {
+    fontSize: 15,
+    color: '#555',
+  },
+  /*Nuevo */
+  boldText: {
+    fontWeight: 'bold', // Aplica negrita al nombre del atributo
+  },
+  noAttributes: {
+    fontSize: 14,
+    color: 'gray',
+  },
+});
+
+export default ResultadosScreen;

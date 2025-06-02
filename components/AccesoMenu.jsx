@@ -1,104 +1,130 @@
-import React, { useState, useEffect } from 'react';
-import { View, Image, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Picker } from '@react-native-picker/picker'; // Asegúrate de instalar esta librería
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Picker } from '@react-native-picker/picker'; // Asegúrate de instalar esta librería
 import { useNavigation } from '@react-navigation/native'; // Importa useNavigation para navegación
+import React, { useEffect, useState } from 'react';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const AccesoMenu = () => {
   const [formularios, setFormularios] = useState([]);
-  const [selectedValue, setSelectedValue] = useState('');
+  const [selectedValue, setSelectedValue] = useState(null);
   const [username, setUsername] = useState('');
+  const [ip, setIp] = useState('');
+  const [puerto, setPuerto] = useState('');
   const navigation = useNavigation(); // Hook para navegar
 
 
-  useEffect(() => {
+ useEffect(() => {
     const fetchFormularios = async () => {
       try {
-        // Recuperamos el token de AsyncStorage
+        // Recuperar configuración de servidor desde AsyncStorage
+        const storedIp = await AsyncStorage.getItem('serverIP');
+        const storedPort = await AsyncStorage.getItem('serverPort');
+        if (!storedIp || !storedPort) {
+          Alert.alert('Error', 'No se ha configurado la IP o el puerto del servidor.');
+          return;
+        }
+        setIp(storedIp);
+        setPuerto(storedPort);
+
+        // Recuperar token y usuario
         const token = await AsyncStorage.getItem('authToken');
         const storedUsername = await AsyncStorage.getItem('username');
         setUsername(storedUsername || 'Root');
 
-        if (token) {
-          const response = await fetch(
-            `http://192.168.11.161:2025/formularios?token=${token}`
-          );
-          const data = await response.json();
-
-          if (data.formularios) {
-            // Filtramos los formularios para que tengan solo id y nombre
-            const formulariosFiltrados = data.formularios.map(formulario => ({
-              id: formulario.id,
-              nombre: formulario.nombre
-            }));
-            
-            // Actualizamos el estado con los formularios filtrados
-            setFormularios(formulariosFiltrados);
-          } else {
-            Alert.alert('Error', 'No se encontraron formularios');
-          }
-        } else {
+        if (!token) {
           Alert.alert('Error', 'Token no disponible. Inicie sesión nuevamente.');
+          return;
+        }
+
+        // Construir URL dinámicamente
+        const url = `http://${storedIp}:${storedPort}/datascan3-web/rest/formularios.json?token=${token}`;
+        console.log('Fetch formularios:', url);
+
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Error del servidor: ${response.status}`);
+        }
+        const data = await response.json();
+
+        if (data.resultado && Array.isArray(data.resultado.formularios)) {
+          const list = data.resultado.formularios.map(f => ({ id: f.id, nombre: f.nombre }));
+          setFormularios(list);
+        } else {
+          Alert.alert('Error', 'No se encontraron formularios');
         }
       } catch (error) {
         console.error('Error al cargar los formularios:', error);
-        Alert.alert('Error', 'Hubo un problema al cargar los formularios.');
+        Alert.alert('Error', 'Hubo un problema al cargar los formularios');
       }
     };
-
     fetchFormularios();
-  }, []); // Se ejecuta solo una vez al montar el componente
+  }, []);
+// Se ejecuta solo una vez al montar el componente
 
   const handleButtonPress = (action) => {
     if (selectedValue !== '') {
       const formularioSeleccionado = formularios.find(
         (formulario) => formulario.id === selectedValue
       );
-  
+
       if (formularioSeleccionado) {
-        navigation.navigate('ConsultaForm', {
-          idFormulario: selectedValue,
-          nombre: formularioSeleccionado.nombre,
-          formularios: formularios,
-          action: action,  // Pasamos la acción aquí
-        });
+        // Si la acción es 'Consultar', navega a la pantalla de consulta
+        if (action === 'Indexar') {
+          // Si la acción es 'Indexar', navega a la pantalla de indexación
+          navigation.navigate('FormularioIndexacion', {
+            idFormulario: selectedValue,
+            nombre: formularioSeleccionado.nombre,
+            formularios: formularios,
+            action: action,  // Pasamos la acción 'Indexar'
+          });
+        } else {
+          // Acción de 'Consultar'
+          navigation.navigate('ConsultaForm', {
+            idFormulario: selectedValue,
+            nombre: formularioSeleccionado.nombre,
+            formularios: formularios,
+            action: action,  // Pasamos la acción 'Consultar'
+          });
+        }
       }
     }
   };
-      
+
+
   const handleIconPress = () => {
-    console.log("Icono presionado");  
+    console.log("Icono presionado");
     // Aquí puedes agregar lo que debe suceder cuando el ícono es tocado
   };
 
   return (
     <View style={styles.container}>
-    {/* Picker */}
-    <Image style={styles.container} source={require('../assets/fondo.png')} />
-    <View style={styles.pickerContainer}>
-      <Text style={styles.label}>Selecciona un formulario:</Text>
-      <Picker
-        selectedValue={selectedValue}
-        onValueChange={(itemValue) => setSelectedValue(itemValue)}
-        style={styles.picker}
-      >
-        <Picker.Item label="--Ninguno--" value="" />
-        {formularios.map((formulario) => (
-          <Picker.Item
-            key={formulario.id}
-            label={formulario.nombre}
-            value={formulario.id}
-          />
-        ))}
-      </Picker>
-    </View>
-     {/* Botones de Consultar e Indexar */}
-     {selectedValue !== '' && (
+      {/* Picker */}
+      <Image style={styles.container} source={require('../assets/fondo.png')} />
+      <View style={styles.pickerContainer}>
+        <Text style={styles.label}>Selecciona un formulario:</Text>
+        <Picker
+          selectedValue={selectedValue}
+          onValueChange={(itemValue) => setSelectedValue(itemValue)}
+          style={styles.picker}
+        >
+          <Picker.Item label="--Ninguno--" value="" />
+          {formularios.map((formulario) => (
+            <Picker.Item
+              key={formulario.id}
+              label={formulario.nombre}
+              value={formulario.id}
+            />
+          ))}
+        </Picker>
+      </View>
+      {/* Botones de Consultar e Indexar */}
+      {selectedValue !== '' && (
         <View style={styles.buttonsContainer}>
           <TouchableOpacity
             style={styles.button}
-            onPress={ handleButtonPress}
+            onPress={() => handleButtonPress('Consultar')}
           >
+
             <Text style={styles.buttonText}>Consultar</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -110,16 +136,16 @@ const AccesoMenu = () => {
         </View>
       )}
 
-    <View style={styles.accesomenu}>
-      <View style={styles.containerStyle}>
-       <Image style={styles.logo1Icon} source={require('../assets/logo 1.png')} />
-         <View style={styles.userGroup}>
-          <Text style={styles.root}>{username || 'Root'}</Text>
-          <Image style={styles.accesomenuItem} source={require('../assets/User.png')} />
+      <View style={styles.accesomenu}>
+        <View style={styles.containerStyle}>
+          <Image style={styles.logo1Icon} source={require('../assets/logo 1.png')} />
+          <View style={styles.userGroup}>
+            <Text style={styles.root}>{username || 'Root'}</Text>
+            <Image style={styles.accesomenuItem} source={require('../assets/User.png')} />
+          </View>
         </View>
+        <Image style={styles.emergencyExitIcon} source={require('../assets/Emergency Exit.svg')} />
       </View>
-      <Image style={styles.emergencyExitIcon} source={require('../assets/Emergency Exit.svg')} />
-	  </View>
     </View>
   );
 };
@@ -137,22 +163,22 @@ const styles = StyleSheet.create({
     alignItems: 'center', // Centra los elementos horizontalmente
     padding: 0, // Espaciado en los bordes
   },
-  
+
   // Estilo para el contenedor del Picker
   pickerContainer: {
     width: '100%', // Asegura que el Picker ocupe todo el ancho disponible
     marginBottom: 20,  // Espacio reducido para que los botones no se alejen demasiado del Picker
     alignItems: 'center', // Centra el Picker horizontalmente
     //backgroundColor: '#f5f5f5',  // Fondo gris claro
-   // borderWidth: 1,  // Añade borde alrededor del Picker
-   // borderColor: '#ccc',  // Color gris del borde
+    // borderWidth: 1,  // Añade borde alrededor del Picker
+    // borderColor: '#ccc',  // Color gris del borde
     borderRadius: 8,  // Bordes redondeados
     padding: 5,  // Espaciado dentro del contenedor del Picker
-     // Posiciona el contenedor con valores en píxeles
-     position: 'absolute',  // Asegura que se ubique en la posición deseada
-     top: 100, // Ajusta la posición hacia abajo desde el borde superior en 100px
+    // Posiciona el contenedor con valores en píxeles
+    position: 'absolute',  // Asegura que se ubique en la posición deseada
+    top: 100, // Ajusta la posición hacia abajo desde el borde superior en 100px
   },
-  
+
   // Estilo del Picker
   picker: {
     height: 52, // Altura ajustada del Picker
@@ -160,9 +186,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',  // Fondo blanco para mejor contraste
     marginBottom: 10,  // Espacio debajo del Picker
     borderWidth: 0,  // Añade borde alrededor del Picker
-    
+
   },
-  
+
   // Etiqueta del Picker
   label: {
     fontSize: 20,  // Tamaño de fuente de la etiqueta
@@ -170,7 +196,7 @@ const styles = StyleSheet.create({
     //backgroundColor: '#f5f5f5',  // Fondo blanco para mejor contraste
     borderColor: '#00000'
   },
-  
+
   // Contenedor de los botones
   buttonsContainer: {
     marginTop: 250, // Ajusta el margen superior según sea necesario
@@ -206,7 +232,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20, // Espacio en los bordes del contenedor
     marginTop: 30,  // Espacio desde la parte superior
   },
-  
+
   // Contenedor del logo y el usuario
   containerStyle: {
     flexDirection: 'row', // Coloca los elementos en fila
@@ -265,5 +291,5 @@ const styles = StyleSheet.create({
 });
 
 
-  
+
 export default AccesoMenu;

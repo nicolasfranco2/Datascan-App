@@ -1,9 +1,8 @@
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, FlatList, ScrollView } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Picker } from '@react-native-picker/picker';
-import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
 
 const ConsultaForm = ({ route, navigation }) => {
   const { idFormulario, nombre, formularios: formulariosDesdeNavegacion } = route.params || {};
@@ -27,95 +26,62 @@ const ConsultaForm = ({ route, navigation }) => {
     }
   }, [selectedValue]); //
 
- // Cargar formularios directamente desde la API original
-useEffect(() => {
-  const fetchFormularios = async () => {
-    try {
-      const token = await AsyncStorage.getItem('authToken');
-        const serverIP = await AsyncStorage.getItem('serverIP');
-        const serverPort = await AsyncStorage.getItem('serverPort');
-        if (!token || !serverIP || !serverPort) {
-          Alert.alert('Error', 'Falta token o configuración de servidor.');
-          return; }
-
-      const url = `http://${serverIP}:${serverPort}/datascan3-web/rest/formularios.json?token=${token}`;
-
-      const response = await fetch(url);
-      const data = await response.json();
-
-      if (data.resultado && data.resultado.formularios) {
-        setFormularios(data.resultado.formularios.map((formulario) => ({
-          id: formulario.id,
-          nombre: formulario.nombre,
-          atributos: formulario.atributos.map((atributo) => ({
-            id: atributo.id,
-            nombre: atributo.nombre,
-            tipo: atributo.tipo,
-          })),
-        })));
-        
-      } else {
-        Alert.alert('Error', 'No se encontraron formularios.');
-      }
-    } catch (error) {
-      console.error('Error al cargar los formularios:', error);
-      Alert.alert('Error', 'Hubo un problema al cargar los formularios.');
-    }
-  };
-
-  fetchFormularios();
-}, []);
-
- // Cargar atributos de un formulario seleccionado desde la API original
-const fetchFormularioAttributes = async (formularioId) => {
-  try {
+  useEffect(() => {
+    const fetchFormularios = async () => {
+      try {
         const token = await AsyncStorage.getItem('authToken');
-        const serverIP = await AsyncStorage.getItem('serverIP');
-        const serverPort = await AsyncStorage.getItem('serverPort');
-        if (!token || !serverIP || !serverPort) {
-          Alert.alert('Error', 'Falta token o configuración de servidor.');
-          return;
+        if (!token) {
+          return Alert.alert('Error', 'Token no disponible. Inicie sesión nuevamente.');
         }
 
-    const url = `http://${serverIP}:${serverPort}/datascan3-web/rest/formularios.json?token=${token}`;
+        const response = await fetch(`http://192.168.11.161:2025/formularios?token=${token}`);
+        const data = await response.json();
 
-    const response = await fetch(url);
-    const data = await response.json();
+        if (data.formularios) {
+          setFormularios(data.formularios.map((formulario) => ({
+            id: formulario.id,
+            nombre: formulario.nombre,
+          })));
+        } else {
+          Alert.alert('Error', 'No se encontraron formularios');
+        }
+      } catch (error) {
+        console.error('Error al cargar los formularios:', error);
+        Alert.alert('Error', 'Hubo un problema al cargar los formularios.');
+      }
+    };
 
-    if (data.resultado && data.resultado.formularios) {
-      // Filtrar el formulario por ID
-      const formulario = data.resultado.formularios.find((f) => f.id === parseInt(formularioId, 10));
+    fetchFormularios();
+  }, []);
 
-      if (formulario) {
-        const formularioProcesado = {
-          id: formulario.id,
-          nombre: formulario.nombre,
-          atributos: formulario.atributos.map((atributo) => ({
-            id: atributo.id,
-            nombre: atributo.nombre,
-            tipo: atributo.tipo,
-          })),
-        };
+  // Cargar atributos de un formulario seleccionado
+  const fetchFormularioAttributes = async (formularioId) => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) {
+        return Alert.alert('Error', 'Token no disponible. Inicie sesión nuevamente.');
+      }
 
-        setFormularioAttributes(formularioProcesado);
+      const response = await fetch(`http://192.168.11.161:2025/formulario/${formularioId}?token=${token}`);
+      const data = await response.json();
+
+      if (data) {
+        setFormularioAttributes(data);
 
         // Inicializamos las condiciones de atributos
-        const initialConditions = formularioProcesado.atributos.reduce((acc, atributo) => {
+        const initialConditions = data.atributos.reduce((acc, atributo) => {
           acc[atributo.id] = { condicion: 'ninguno', valor: '' };
           return acc;
         }, {});
         setAtributoConditions(initialConditions);
       } else {
-        Alert.alert('Error', 'Formulario no encontrado.');
+        Alert.alert('Error', 'No se encontraron los atributos del formulario');
       }
-    } else {
-      Alert.alert('Error', 'No se encontraron formularios.');
+    } catch (error) {
+      console.error('Error al cargar los atributos del formulario:', error);
+      Alert.alert('Error', 'Hubo un problema al cargar los atributos.');
     }
-  } catch (error) {
-    console.error('Error al cargar los atributos del formulario:', error);
-    Alert.alert('Error', 'Hubo un problema al cargar los atributos.');
-  }
-};
+  };
 
   // Manejar cambio de selección en el formulario
   const handleValueChange = (itemValue) => {
@@ -233,25 +199,17 @@ const handleButtonPress = async () => {
     // Log para ver el cuerpo de la solicitud antes de enviarla
     console.log('Cuerpo de la solicitud:', requestBody.toString());
 
-    // Obtener configuración desde AsyncStorage
-const serverIP = await AsyncStorage.getItem('serverIP');
-const serverPort = await AsyncStorage.getItem('serverPort');
-
-if (!token || !serverIP || !serverPort) {
-  Alert.alert('Error', 'Faltan token o configuración de servidor.');
-  setLoading(false);
-  return;
-}
-
-// URL dinámica con los datos de configuración
-const url = `http://${serverIP}:${serverPort}/datascan3-web/rest/busqueda.json`;
-console.log('POST a:', url);
-
-const response = await fetch(url, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-  body: requestBody.toString(),
-});
+    // Realizar la solicitud a la API
+    const response = await fetch(
+      `http://192.168.11.161:8080/datascan3-web/rest/busqueda.json`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: requestBody.toString(),
+      }
+    );
 
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
@@ -281,8 +239,6 @@ const response = await fetch(url, {
         })),
       })) || [];
 
-      console.log('Resultados filtrados:', resultadosFiltrados);
-
       // setResultados(resultadosFiltrados);
       Alert.alert('Éxito', 'Consulta realizada correctamente.');
       navigation.navigate('Resultados', { resultados: resultadosFiltrados });
@@ -302,19 +258,15 @@ const response = await fetch(url, {
 
   
   return (
-    
     <ScrollView style={styles.container}>
       <Text style={styles.label}>Selecciona un formulario:</Text>
-      <Picker
-  selectedValue={selectedValue}
-  onValueChange={handleValueChange}
-  style={styles.picker}
->
-  <Picker.Item label="Selecciona un formulario" value="" />
-  {formularios.map((formulario) => (
-    <Picker.Item key={formulario.id} label={formulario.nombre} value={formulario.id} />
-  ))}
-</Picker>
+      <Picker selectedValue={selectedValue} onValueChange={handleValueChange}>
+        <Picker.Item label="Selecciona un formulario" value="" />
+        {formularios.map((formulario) => (
+          <Picker.Item key={formulario.id} label={formulario.nombre} value={formulario.id} />
+        ))}
+      </Picker>
+{/* Atributos */}
 {formularioAttributes ? (
   <View style={styles.attributesContainer}>
     <Text style={styles.attributesTitle}>Atributos del formulario:</Text>
@@ -337,8 +289,8 @@ const response = await fetch(url, {
               <Picker.Item label="INTERVALO" value="intervalo" />
             </Picker>
 
-            {/* Mostrar DateTimePicker solo si se ha seleccionado una condición válida */}
-            {atributoConditions[atributo.id]?.condicion !== 'ninguno' && atributoConditions[atributo.id]?.condicion !== 'intervalo' && (
+            {/* DateTimePicker para seleccionar una fecha */}
+            {atributoConditions[atributo.id]?.condicion !== 'intervalo' && (
               <TouchableOpacity
                 style={styles.input}
                 onPress={() => setShowDatePicker({ id: atributo.id, field: 'valor' })}
@@ -351,7 +303,7 @@ const response = await fetch(url, {
               </TouchableOpacity>
             )}
 
-            {/* Mostrar campos "Desde" y "Hasta" solo si la condición es 'INTERVALO' */}
+            {/* Mostrar campos "Desde" y "Hasta" si la condición es 'INTERVALO' */}
             {atributoConditions[atributo.id]?.condicion === 'intervalo' && (
               <View style={styles.intervalContainer}>
                 <View>
@@ -413,29 +365,26 @@ const response = await fetch(url, {
               <Picker.Item label="DISTINTO" value="distinto" />
             </Picker>
 
-            {/* Mostrar TextInput solo si se seleccionó una condición distinta a "ninguno" */}
-            {atributoConditions[atributo.id]?.condicion !== 'ninguno' && (
-              <TextInput
-                style={styles.input}
-                placeholder="Valor"
-                value={atributoConditions[atributo.id]?.valor}
-                onChangeText={(value) => handleValueInputChange(atributo.id, value)}
-              />
-            )}
+            {/* TextInput para otros tipos de atributo */}
+            <TextInput
+              style={styles.input}
+              placeholder="Valor"
+              value={atributoConditions[atributo.id]?.valor}
+              onChangeText={(value) => handleValueInputChange(atributo.id, value)}
+            />
           </View>
         )}
       </View>
     ))}
-
-    {/* Botón de consulta */}
-    <TouchableOpacity onPress={handleButtonPress} style={styles.button}>
-      <Text style={styles.buttonText}>Consultar</Text>
-    </TouchableOpacity>
   </View>
 ) : null}
 
-{loading && <Text style={styles.loading}>Cargando...</Text>}
 
+      <TouchableOpacity onPress={handleButtonPress} style={styles.button}>
+        <Text style={styles.buttonText}>Consultar</Text>
+      </TouchableOpacity>
+
+      {loading && <Text style={styles.loading}>Cargando...</Text>}
 
       {resultados.length > 0 && (
         <FlatList
@@ -492,29 +441,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingLeft: 8,
   },
-  /*picker: {
+  picker: {
     height: 50,
     width: '100%',
     marginBottom: 20,
-    borderWidth: 1, // Establece el grosor del borde
-    borderColor: '#ccc', // Color del borde
-    borderRadius: 5, // Redondea las esquinas (opcional)
-  }*/
-    picker: {
-      height: 50, // Altura del componente Picker (en píxeles).
-      width: '100%', // Ancho del Picker, ocupa el 100% del ancho disponible del contenedor.
-      marginBottom: 20, // Espaciado (en píxeles) debajo del Picker para separarlo de otros elementos.
-      borderWidth: 1, // Grosor del borde del Picker (en píxeles).
-      borderColor: '#ccc', // Color del borde del Picker (gris claro, código hexadecimal).
-      borderRadius: 5, // Esquinas redondeadas del borde (en píxeles).
-      backgroundColor: '#f9f9f9', // Color de fondo del Picker (gris muy claro).
-      color: '#333', // Color del texto del Picker (gris oscuro).
-      paddingHorizontal: 30, // Espaciado interno horizontal (en píxeles) dentro del Picker.
-      fontSize: 16, // Tamaño del texto del Picker (en píxeles).
-    },
-  
+  },
   attributesContainer: {
-    marginBottom: 20,
+    //marginBottom: 20,
     marginTop: 20,
     padding: 10,
     backgroundColor: '#f9f9f9',
@@ -554,22 +487,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop:20,
   },*/
-  /*button: {
+  button: {
     backgroundColor: '#007BFF', // Color de fondo
     paddingVertical: 12,         // Espaciado vertical
     paddingHorizontal: 20,       // Espaciado horizontal
     borderRadius: 5,            // Bordes redondeados
     alignItems: 'center',       // Centra el contenido en el eje horizontal
     justifyContent: 'center',   // Centra el contenido en el eje vertical
-  },*/
-
-  button: {
-    backgroundColor: '#007BFF',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   buttonText: {
     color: 'white',
