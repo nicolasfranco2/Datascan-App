@@ -136,7 +136,21 @@ const fetchFormularioAttributes = async (formularioId) => {
       [atributoId]: { ...prevState[atributoId], condicion },
     }));
   };
+  // Manejar el cambio de condición de un atributo
+  const handleConditionChange = (atributoId, condicion) => {
+    setAtributoConditions((prevState) => ({
+      ...prevState,
+      [atributoId]: { ...prevState[atributoId], condicion },
+    }));
+  };
 
+  // Manejar el cambio de valor de un atributo
+  const handleValueInputChange = (atributoId, value) => {
+    setAtributoConditions((prevState) => ({
+      ...prevState,
+      [atributoId]: { ...prevState[atributoId], valor: value },
+    }));
+  };
   // Manejar el cambio de valor de un atributo
   const handleValueInputChange = (atributoId, value) => {
     setAtributoConditions((prevState) => ({
@@ -418,7 +432,9 @@ const response = await fetch(url, {
               <TextInput
                 style={styles.input}
                 placeholder="Valor"
+                placeholder="Valor"
                 value={atributoConditions[atributo.id]?.valor}
+                onChangeText={(value) => handleValueInputChange(atributo.id, value)}
                 onChangeText={(value) => handleValueInputChange(atributo.id, value)}
               />
             )}
@@ -464,6 +480,7 @@ const response = await fetch(url, {
       )}
     </ScrollView>
   );
+};
 };
 
 const styles = StyleSheet.create({

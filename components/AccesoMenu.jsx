@@ -15,6 +15,7 @@ const AccesoMenu = () => {
 
  useEffect(() => {
     const fetchFormularios = async () => {
+
       try {
         // Recuperar configuración de servidor desde AsyncStorage
         const storedIp = await AsyncStorage.getItem('serverIP');
@@ -28,6 +29,8 @@ const AccesoMenu = () => {
 
         // Recuperar token y usuario
         const token = await AsyncStorage.getItem('authToken');
+
+        //recuperamos el username del usuario y lo seteamos en vez de root
         const storedUsername = await AsyncStorage.getItem('username');
         setUsername(storedUsername || 'Root');
 
@@ -52,6 +55,7 @@ const AccesoMenu = () => {
         } else {
           Alert.alert('Error', 'No se encontraron formularios');
         }
+
       } catch (error) {
         console.error('Error al cargar los formularios:', error);
         Alert.alert('Error', 'Hubo un problema al cargar los formularios');
@@ -61,8 +65,13 @@ const AccesoMenu = () => {
   }, []);
 // Se ejecuta solo una vez al montar el componente
 
+//ejecuta el boton de consulta
   const handleButtonPress = (action) => {
+
+    //verifica si el formulario no esta vacio
     if (selectedValue !== '') {
+
+      //buscamos el formulario con el id seleccionado
       const formularioSeleccionado = formularios.find(
         (formulario) => formulario.id === selectedValue
       );
@@ -87,6 +96,8 @@ const AccesoMenu = () => {
           });
         }
       }
+    } else {
+      Alert.alert('Advertencia', 'Selecciona un formulario antes de continuar');
     }
   };
 
